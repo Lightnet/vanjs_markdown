@@ -4,7 +4,107 @@ const { div, p, h1, h2, h3, h4, h5, h6, pre, code, button, textarea, strong, em,
 
 // Editor State
 const editorState = van.state({
-  text: "# Sample Title\n\nHello, **bold** and *italic* world![^1]\n\n> This is a **blockquote** with *emphasis*\n> Another line\n\n| Header 1 | Header 2 |\n|----------|----------|\n| Cell 1   | **Cell 2** |\n| *Cell 3* | <span style=\"color: red;\">Cell 4</span> |\n\n![Sample Image](https://via.placeholder.com/150)\n\nHere's some <b>bold</b> and <i>italic</i> inline HTML.\nWith a break  \nright here  \nand more.[^2]\n\nasdddd\ndddddd\ndddddd\n\nddddd\nddddd\n\n[^1]: This is the first footnote.\n[^2]: This is the second footnote with **bold** text.\n\n---\n\n```javascript\nconsole.log('hi');\n```\n\n- Item 1\n- _Item 2_\n\n1. First\n2. ~~Second~~\n\n[Link](https://example.com)\n\n`inline code`"
+  text: `# Anchors in Markdown
+
+## Heading Levels
+# H1 Heading
+## H2 Heading
+### H3 Heading
+#### H4 Heading
+##### H5 Heading
+###### H6 Heading
+
+## Inline Formatting
+This text has **bold**, *italic*, ~~strikethrough~~, and \`inline code\`.
+
+## Links and Anchors
+[Jump to Anchors](#anchors-in-markdown)  
+[Jump to H2 Heading](#h2-heading)  
+[External Link](https://example.com)  
+
+## Explicit Anchor
+<a id="custom-anchor"></a>
+### Custom Anchored Heading
+[Jump to Custom](#custom-anchor)
+
+## Images
+![Sample Image](https://via.placeholder.com/150)
+
+## Code Blocks
+\`\`\`javascript
+// JavaScript code block
+console.log('Hello, world!');
+\`\`\`
+\`\`\`python
+# Python code block
+print("Hello, world!")
+\`\`\`
+\`\`\`
+// Plain text code block
+Just some text
+\`\`\`
+
+## Blockquotes
+> This is a simple blockquote
+> with multiple lines
+
+## Alerts
+> [!NOTE]
+> This is a note alert
+>
+> [!TIP]
+> This is a tip alert
+>
+> [!IMPORTANT]
+> This is an important alert
+>
+> [!WARNING]
+> This is a warning alert
+>
+> [!CAUTION]
+> This is a caution alert
+
+## Lists
+### Unordered List
+- Item 1
+- Item 2
+  - Nested Item 1
+  - Nested Item 2
+- Item 3
+
+### Ordered List
+1. First item
+2. Second item
+   1. Nested ordered item
+   2. Another nested item
+3. Third item
+
+### Task List
+- [ ] Unchecked task
+- [x] Checked task
+- [X] Checked task (uppercase X)
+
+## Tables
+| Header 1 | Header 2 |
+|----------|----------|
+| Cell 1   | Cell 2   |
+| Cell 3   | Cell 4   |
+
+## Horizontal Rule
+---
+
+## Footnotes
+This text has a footnote[^1] and another[^2].
+
+[^1]: First footnote
+[^2]: Second footnote with **bold** text
+
+## Line Breaks
+This line has a break  \nfollowed by another line.
+
+## HTML Inline
+This has <b>bold</b> and <i>italic</i> HTML tags.
+`
 });
 
 // Highlight.js State
@@ -26,9 +126,10 @@ const loadHighlightJS = async () => {
 // Initialize highlight.js
 loadHighlightJS();
 
-// Inline parsing function (unchanged)
+// Inline parsing function
 const parseInline = (text, footnotes) => {
   let parts = [text];
+  
   parts = parts.flatMap(part => {
     if (typeof part !== "string") return [part];
     const result = [];
@@ -45,6 +146,7 @@ const parseInline = (text, footnotes) => {
     if (lastIndex < remaining.length) result.push(remaining.slice(lastIndex));
     return result.length ? result : [part];
   });
+
   parts = parts.flatMap(part => {
     if (typeof part !== "string") return [part];
     const result = [];
@@ -63,6 +165,7 @@ const parseInline = (text, footnotes) => {
     if (lastIndex < remaining.length) result.push(remaining.slice(lastIndex));
     return result.length ? result : [part];
   });
+
   parts = parts.flatMap(part => {
     if (typeof part !== "string") return [part];
     const result = [];
@@ -78,6 +181,7 @@ const parseInline = (text, footnotes) => {
     if (lastIndex < remaining.length) result.push(remaining.slice(lastIndex));
     return result.length ? result : [part];
   });
+
   parts = parts.flatMap(part => {
     if (typeof part !== "string") return [part];
     const result = [];
@@ -93,6 +197,7 @@ const parseInline = (text, footnotes) => {
     if (lastIndex < remaining.length) result.push(remaining.slice(lastIndex));
     return result.length ? result : [part];
   });
+
   parts = parts.flatMap(part => {
     if (typeof part !== "string") return [part];
     const result = [];
@@ -108,6 +213,7 @@ const parseInline = (text, footnotes) => {
     if (lastIndex < remaining.length) result.push(remaining.slice(lastIndex));
     return result.length ? result : [part];
   });
+
   parts = parts.flatMap(part => {
     if (typeof part !== "string") return [part];
     const result = [];
@@ -123,6 +229,7 @@ const parseInline = (text, footnotes) => {
     if (lastIndex < remaining.length) result.push(remaining.slice(lastIndex));
     return result.length ? result : [part];
   });
+
   parts = parts.flatMap(part => {
     if (typeof part !== "string") return [part];
     const result = [];
@@ -138,6 +245,7 @@ const parseInline = (text, footnotes) => {
     if (lastIndex < remaining.length) result.push(remaining.slice(lastIndex));
     return result.length ? result : [part];
   });
+
   parts = parts.flatMap(part => {
     if (typeof part !== "string") return [part];
     const result = [];
@@ -147,17 +255,26 @@ const parseInline = (text, footnotes) => {
     let match;
     while ((match = linkRegex.exec(remaining)) !== null) {
       if (match.index > lastIndex) result.push(remaining.slice(lastIndex, match.index));
-      result.push(a({ href: match[2] }, match[1]));
+      const linkText = match[1];
+      let href = match[2];
+      if (href.startsWith('#')) {
+        href = '#' + href
+          .slice(1)
+          .toLowerCase()
+          .replace(/[^\w\s-]/g, '')
+          .replace(/\s+/g, '-')
+          .trim();
+      }
+      result.push(a({ href }, linkText));
       lastIndex = linkRegex.lastIndex;
     }
     if (lastIndex < remaining.length) result.push(remaining.slice(lastIndex));
     return result.length ? result : [part];
   });
+
   return parts;
 };
 
-
-// Parse Markdown text into blocks and footnotes
 // Parse Markdown text into blocks and footnotes
 const parseMarkdown = (text) => {
   const blocks = [];
@@ -168,11 +285,18 @@ const parseMarkdown = (text) => {
   let currentBlockquote = null;
   let currentTable = null;
   let currentParagraphLines = [];
-  let listStack = []; // Stack to track nested list levels
+  let listStack = [];
   let currentAlertType = null;
-  let pendingAnchor = null;
 
   const getSpaceCount = (line) => line.match(/^\s*/)[0].length;
+
+  const generateAnchorId = (text) => {
+    return text
+      .toLowerCase()
+      .replace(/[^\w\s-]/g, '')
+      .trim()
+      .replace(/\s+/g, '-');
+  };
 
   const processListItems = (items) => {
     items.forEach(item => {
@@ -180,12 +304,10 @@ const parseMarkdown = (text) => {
         item.isTask = true;
         item.checked = false;
         item.text = item.text.replace("[ ] ", "").trim();
-        console.log(`Task: "${item.text}", checked: ${item.checked}`);
       } else if (item.text.startsWith("[x] ") || item.text.startsWith("[X] ")) {
         item.isTask = true;
         item.checked = true;
         item.text = item.text.replace(/^\[x\] /i, "").trim();
-        console.log(`Task: "${item.text}", checked: ${item.checked}`);
       } else {
         item.isTask = false;
         item.checked = false;
@@ -199,7 +321,6 @@ const parseMarkdown = (text) => {
     const trimmedLine = line.trim();
     const spaceCount = getSpaceCount(line);
 
-    // Handle anchor tags
     if (trimmedLine.match(/^<a id="[^"]+"><\/a>$/)) {
       if (listStack.length) {
         processListItems(listStack[0].items);
@@ -210,11 +331,19 @@ const parseMarkdown = (text) => {
         blocks.push({ type: "paragraph", text: currentParagraphLines.join("\n") });
         currentParagraphLines = [];
       }
-      pendingAnchor = trimmedLine.match(/^<a id="([^"]+)"><\/a>$/)[1];
+      const anchorId = trimmedLine.match(/^<a id="([^"]+)"><\/a>$/)[1];
+      if (i + 1 < lines.length && lines[i + 1].trim().startsWith("#")) {
+        i++;
+        const nextLine = lines[i].trim();
+        const level = nextLine.match(/^#+/)[0].length;
+        if (level <= 6) {
+          const text = nextLine.replace(/^#+/, "").trim();
+          blocks.push({ type: `h${level}`, text, anchorId });
+        }
+      }
       continue;
     }
 
-    // Handle footnotes
     if (trimmedLine.match(/^\[\^[^\]]+\]:/)) {
       if (listStack.length) {
         processListItems(listStack[0].items);
@@ -240,7 +369,6 @@ const parseMarkdown = (text) => {
       continue;
     }
 
-    // Handle headers
     if (trimmedLine.startsWith("#")) {
       const level = trimmedLine.match(/^#+/)[0].length;
       if (level <= 6) {
@@ -249,16 +377,26 @@ const parseMarkdown = (text) => {
           blocks.push(listStack[0]);
           listStack = [];
         }
+        if (currentBlockquote) {
+          blocks.push({ type: "blockquote", text: currentBlockquote.text, alertType: currentAlertType });
+          currentBlockquote = null;
+          currentAlertType = null;
+        }
+        if (currentTable) {
+          blocks.push(currentTable);
+          currentTable = null;
+        }
         if (currentParagraphLines.length) {
           blocks.push({ type: "paragraph", text: currentParagraphLines.join("\n") });
           currentParagraphLines = [];
         }
-        blocks.push({ type: `h${level}`, text: trimmedLine.replace(/^#+/, "").trim() });
+        const text = trimmedLine.replace(/^#+/, "").trim();
+        const anchorId = generateAnchorId(text);
+        blocks.push({ type: `h${level}`, text, anchorId });
         continue;
       }
     }
 
-    // Handle code blocks
     if (trimmedLine.startsWith("```")) {
       if (listStack.length) {
         processListItems(listStack[0].items);
@@ -293,8 +431,7 @@ const parseMarkdown = (text) => {
       continue;
     }
 
-    // Handle blockquotes and alerts
-    if (trimmedLine.startsWith("> ")) {
+    if (trimmedLine.startsWith(">")) {
       if (listStack.length) {
         processListItems(listStack[0].items);
         blocks.push(listStack[0]);
@@ -308,66 +445,81 @@ const parseMarkdown = (text) => {
         blocks.push({ type: "paragraph", text: currentParagraphLines.join("\n") });
         currentParagraphLines = [];
       }
-      const content = trimmedLine.replace("> ", "").trim();
+      const content = trimmedLine.replace(/^>\s*/, "").trim(); // Remove "> " or ">"
+
+      // Skip completely empty lines (just ">") without adding to output
+      if (!content && trimmedLine === ">") {
+        continue;
+      }
+
+      // Check if this is a new alert type
       if (content.match(/^\[!NOTE\]$/)) {
-        currentAlertType = "note";
         if (currentBlockquote) {
-          blocks.push({ type: "blockquote", text: currentBlockquote.text, alertType: null });
+          blocks.push({ type: "blockquote", text: currentBlockquote.text, alertType: currentAlertType });
           currentBlockquote = null;
         }
+        currentAlertType = "note";
         currentBlockquote = { text: "" };
         continue;
       } else if (content.match(/^\[!TIP\]$/)) {
-        currentAlertType = "tip";
         if (currentBlockquote) {
-          blocks.push({ type: "blockquote", text: currentBlockquote.text, alertType: null });
+          blocks.push({ type: "blockquote", text: currentBlockquote.text, alertType: currentAlertType });
           currentBlockquote = null;
         }
+        currentAlertType = "tip";
         currentBlockquote = { text: "" };
         continue;
       } else if (content.match(/^\[!IMPORTANT\]$/)) {
-        currentAlertType = "important";
         if (currentBlockquote) {
-          blocks.push({ type: "blockquote", text: currentBlockquote.text, alertType: null });
+          blocks.push({ type: "blockquote", text: currentBlockquote.text, alertType: currentAlertType });
           currentBlockquote = null;
         }
+        currentAlertType = "important";
         currentBlockquote = { text: "" };
         continue;
       } else if (content.match(/^\[!WARNING\]$/)) {
-        currentAlertType = "warning";
         if (currentBlockquote) {
-          blocks.push({ type: "blockquote", text: currentBlockquote.text, alertType: null });
+          blocks.push({ type: "blockquote", text: currentBlockquote.text, alertType: currentAlertType });
           currentBlockquote = null;
         }
+        currentAlertType = "warning";
         currentBlockquote = { text: "" };
         continue;
       } else if (content.match(/^\[!CAUTION\]$/)) {
-        currentAlertType = "caution";
         if (currentBlockquote) {
-          blocks.push({ type: "blockquote", text: currentBlockquote.text, alertType: null });
+          blocks.push({ type: "blockquote", text: currentBlockquote.text, alertType: currentAlertType });
           currentBlockquote = null;
         }
+        currentAlertType = "caution";
         currentBlockquote = { text: "" };
         continue;
       }
+
+      // If no new alert type and no current blockquote, start a plain one
       if (!currentBlockquote) {
         currentBlockquote = { text: "" };
+        if (!currentAlertType) currentAlertType = null;
       }
-      currentBlockquote.text += (currentBlockquote.text ? "\n" : "") + content;
+
+      // Add non-empty content to current blockquote
+      if (content) {
+        currentBlockquote.text += (currentBlockquote.text ? "\n" : "") + content;
+      }
       continue;
     }
 
-    // Handle tables
+    // Flush blockquote when we hit a non-blockquote line
+    if (currentBlockquote) {
+      blocks.push({ type: "blockquote", text: currentBlockquote.text, alertType: currentAlertType });
+      currentBlockquote = null;
+      currentAlertType = null;
+    }
+
     if (trimmedLine.startsWith("|")) {
       if (listStack.length) {
         processListItems(listStack[0].items);
         blocks.push(listStack[0]);
         listStack = [];
-      }
-      if (currentBlockquote) {
-        blocks.push({ type: "blockquote", text: currentBlockquote.text, alertType: currentAlertType });
-        currentBlockquote = null;
-        currentAlertType = null;
       }
       if (currentParagraphLines.length) {
         blocks.push({ type: "paragraph", text: currentParagraphLines.join("\n") });
@@ -379,22 +531,16 @@ const parseMarkdown = (text) => {
       const cells = trimmedLine.split("|").map(cell => cell.trim()).filter(cell => cell !== "");
       currentTable.rows.push(cells);
       if (i + 1 < lines.length && lines[i + 1].trim().match(/^\|?-+\|?-+\|?$/)) {
-        i++; // Skip separator line
+        i++;
       }
       continue;
     }
 
-    // Handle horizontal rules
     if (trimmedLine.match(/^(?:[-*_]){3,}$/)) {
       if (listStack.length) {
         processListItems(listStack[0].items);
         blocks.push(listStack[0]);
         listStack = [];
-      }
-      if (currentBlockquote) {
-        blocks.push({ type: "blockquote", text: currentBlockquote.text, alertType: currentAlertType });
-        currentBlockquote = null;
-        currentAlertType = null;
       }
       if (currentTable) {
         blocks.push(currentTable);
@@ -408,7 +554,6 @@ const parseMarkdown = (text) => {
       continue;
     }
 
-    // Handle lists
     if (trimmedLine.match(/^[-*+] /) || trimmedLine.match(/^\d+\.\s/)) {
       if (currentParagraphLines.length) {
         blocks.push({ type: "paragraph", text: currentParagraphLines.join("\n") });
@@ -450,12 +595,15 @@ const parseMarkdown = (text) => {
       continue;
     }
 
-    // Handle empty lines
     if (trimmedLine === "") {
       if (listStack.length) {
         processListItems(listStack[0].items);
         blocks.push(listStack[0]);
         listStack = [];
+      }
+      if (currentTable) {
+        blocks.push(currentTable);
+        currentTable = null;
       }
       if (currentParagraphLines.length) {
         blocks.push({ type: "paragraph", text: currentParagraphLines.join("\n") });
@@ -464,38 +612,45 @@ const parseMarkdown = (text) => {
       continue;
     }
 
-    // Handle paragraphs
     if (line) {
       if (listStack.length) {
         processListItems(listStack[0].items);
         blocks.push(listStack[0]);
         listStack = [];
       }
+      if (currentTable) {
+        blocks.push(currentTable);
+        currentTable = null;
+      }
       currentParagraphLines.push(line);
     }
   }
 
-  // Flush remaining blocks
   if (listStack.length) {
     processListItems(listStack[0].items);
     blocks.push(listStack[0]);
+  }
+  if (currentBlockquote) {
+    blocks.push({ type: "blockquote", text: currentBlockquote.text, alertType: currentAlertType });
+  }
+  if (currentTable) {
+    blocks.push(currentTable);
   }
   if (currentParagraphLines.length) blocks.push({ type: "paragraph", text: currentParagraphLines.join("\n") });
 
   return { blocks, footnotes };
 };
 
+
 // Recursive list renderer
 const renderList = (type, items, footnotes) => {
   const listTag = type === "ul" ? ul : ol;
   return listTag({ class: "markdown-body" }, items.map(item => {
-    console.log(`Rendering item: "${item.text}", isTask: ${item.isTask}, checked: ${item.checked}`);
     let content = parseInline(item.text, footnotes);
     if (item.isTask) {
       content = [input({ type: "checkbox", disabled: true, checked: item.checked }), ...content];
     }
     const liProps = { class: item.isTask ? "markdown-body task-item" : "markdown-body" };
-    //const liProps = { class: "markdown-body" };
     if (item.anchorId) liProps.id = `user-content-${item.anchorId}`;
     return li(
       liProps,
@@ -507,7 +662,6 @@ const renderList = (type, items, footnotes) => {
 
 // Preview Renderer
 const PreviewBlock = ({ type, text, language, items, rows, footnotes, alertType, anchorId }) => {
-  console.log(`PreviewBlock: type=${type}, text=${text}, items=`, items);
   const hljs = hljsState.val;
 
   if (type === "paragraph") {
@@ -518,12 +672,13 @@ const PreviewBlock = ({ type, text, language, items, rows, footnotes, alertType,
     });
     return p({ class: "markdown-body" }, lines);
   }
-  if (type === "h1") return h1(anchorId ? { id: `user-content-${anchorId}` } : {}, anchorId ? a({ id: anchorId }) : null, ...parseInline(text, footnotes));
-  if (type === "h2") return h2(anchorId ? { id: `user-content-${anchorId}` } : {}, anchorId ? a({ id: anchorId }) : null, ...parseInline(text, footnotes));
-  if (type === "h3") return h3(anchorId ? { id: `user-content-${anchorId}` } : {}, anchorId ? a({ id: anchorId }) : null, ...parseInline(text, footnotes));
-  if (type === "h4") return h4(anchorId ? { id: `user-content-${anchorId}` } : {}, anchorId ? a({ id: anchorId }) : null, ...parseInline(text, footnotes));
-  if (type === "h5") return h5(anchorId ? { id: `user-content-${anchorId}` } : {}, anchorId ? a({ id: anchorId }) : null, ...parseInline(text, footnotes));
-  if (type === "h6") return h6(anchorId ? { id: `user-content-${anchorId}` } : {}, anchorId ? a({ id: anchorId }) : null, ...parseInline(text, footnotes));
+  if (type === "h1") return h1({ id: anchorId ? anchorId : undefined }, ...parseInline(text, footnotes));
+  if (type === "h2") return h2({ id: anchorId ? anchorId : undefined }, ...parseInline(text, footnotes));
+  if (type === "h3") return h3({ id: anchorId ? anchorId : undefined }, ...parseInline(text, footnotes));
+  if (type === "h4") return h4({ id: anchorId ? anchorId : undefined }, ...parseInline(text, footnotes));
+  if (type === "h5") return h5({ id: anchorId ? anchorId : undefined }, ...parseInline(text, footnotes));
+  if (type === "h6") return h6({ id: anchorId ? anchorId : undefined }, ...parseInline(text, footnotes));
+  
   if (type === "code") {
     if (hljs) {
       const highlighted = hljs.highlight(text, { language: language === "text" ? "plaintext" : language }).value;
@@ -546,9 +701,7 @@ const PreviewBlock = ({ type, text, language, items, rows, footnotes, alertType,
   if (type === "ul" || type === "ol") return renderList(type, items, footnotes);
 };
 
-
-
-// Editor Component with Preview (unchanged)
+// Editor Component with Preview
 const Editor = () => {
   const editorTextarea = textarea({
     value: editorState.val.text,
