@@ -127,9 +127,13 @@ const loadHighlightJS = async () => {
 loadHighlightJS();
 
 // Inline parsing function
+// Inline parsing function with feature comments
 const parseInline = (text, footnotes) => {
   let parts = [text];
   
+  // Feature: Footnotes (e.g., [^1] in text linking to footnote definitions)
+  // Note: Parses footnote references like [^1] into superscript links to footnote definitions
+  // Output: <sup><a href="#fn-1" id="fnref-1" class="footnote-ref">1</a></sup>
   parts = parts.flatMap(part => {
     if (typeof part !== "string") return [part];
     const result = [];
@@ -147,6 +151,9 @@ const parseInline = (text, footnotes) => {
     return result.length ? result : [part];
   });
 
+  // Feature: HTML Inline (e.g., <b>bold</b>, <i>italic</i>)
+  // Note: Allows basic HTML tags within text, rendered as spans to preserve structure
+  // Output: <span><b>bold</b></span>, <span><i>italic</i></span>
   parts = parts.flatMap(part => {
     if (typeof part !== "string") return [part];
     const result = [];
@@ -166,6 +173,9 @@ const parseInline = (text, footnotes) => {
     return result.length ? result : [part];
   });
 
+  // Feature: Inline Code (e.g., `inline code`)
+  // Note: Wraps text within single backticks in <code> tags for monospace display
+  // Output: <code>inline code</code>
   parts = parts.flatMap(part => {
     if (typeof part !== "string") return [part];
     const result = [];
@@ -182,6 +192,9 @@ const parseInline = (text, footnotes) => {
     return result.length ? result : [part];
   });
 
+  // Feature: Strikethrough (e.g., ~~strikethrough~~)
+  // Note: Wraps text between double tildes in <del> tags for strikethrough effect
+  // Output: <del>strikethrough</del>
   parts = parts.flatMap(part => {
     if (typeof part !== "string") return [part];
     const result = [];
@@ -198,6 +211,9 @@ const parseInline = (text, footnotes) => {
     return result.length ? result : [part];
   });
 
+  // Feature: Bold (e.g., **bold**)
+  // Note: Wraps text between double asterisks in <strong> tags for bold formatting
+  // Output: <strong>bold</strong>
   parts = parts.flatMap(part => {
     if (typeof part !== "string") return [part];
     const result = [];
@@ -214,6 +230,9 @@ const parseInline = (text, footnotes) => {
     return result.length ? result : [part];
   });
 
+  // Feature: Italic (e.g., *italic* or _italic_)
+  // Note: Wraps text between single asterisks or underscores in <em> tags for italic formatting
+  // Output: <em>italic</em>
   parts = parts.flatMap(part => {
     if (typeof part !== "string") return [part];
     const result = [];
@@ -230,6 +249,9 @@ const parseInline = (text, footnotes) => {
     return result.length ? result : [part];
   });
 
+  // Feature: Images (e.g., ![alt](url))
+  // Note: Converts image syntax into <img> tags with src and alt attributes
+  // Output: <img src="https://via.placeholder.com/150" alt="Sample Image" class="markdown-body">
   parts = parts.flatMap(part => {
     if (typeof part !== "string") return [part];
     const result = [];
@@ -246,6 +268,9 @@ const parseInline = (text, footnotes) => {
     return result.length ? result : [part];
   });
 
+  // Feature: Links (e.g., [text](url) or [text](#anchor))
+  // Note: Converts link syntax into <a> tags, with special handling for anchor links
+  // Output: <a href="#anchors-in-markdown">Jump to Anchors</a>, <a href="https://example.com">External Link</a>
   parts = parts.flatMap(part => {
     if (typeof part !== "string") return [part];
     const result = [];
@@ -275,7 +300,7 @@ const parseInline = (text, footnotes) => {
   return parts;
 };
 
-// Parse Markdown text into blocks and footnotes
+// Parse Markdown text into blocks and footnotes with feature comments
 const parseMarkdown = (text) => {
   const blocks = [];
   const footnotes = {};
@@ -321,6 +346,7 @@ const parseMarkdown = (text) => {
     const trimmedLine = line.trim();
     const spaceCount = getSpaceCount(line);
 
+    // Feature: Explicit Anchor (e.g., <a id="custom-anchor"></a> before a heading)
     if (trimmedLine.match(/^<a id="[^"]+"><\/a>$/)) {
       if (listStack.length) {
         processListItems(listStack[0].items);
@@ -344,6 +370,7 @@ const parseMarkdown = (text) => {
       continue;
     }
 
+    // Feature: Footnotes (e.g., [^1]: First footnote)
     if (trimmedLine.match(/^\[\^[^\]]+\]:/)) {
       if (listStack.length) {
         processListItems(listStack[0].items);
@@ -369,6 +396,7 @@ const parseMarkdown = (text) => {
       continue;
     }
 
+    // Feature: Heading Levels (e.g., # H1 Heading, ## H2 Heading, etc.)
     if (trimmedLine.startsWith("#")) {
       const level = trimmedLine.match(/^#+/)[0].length;
       if (level <= 6) {
@@ -397,6 +425,7 @@ const parseMarkdown = (text) => {
       }
     }
 
+    // Feature: Code Blocks (e.g., ```javascript ... ```)
     if (trimmedLine.startsWith("```")) {
       if (listStack.length) {
         processListItems(listStack[0].items);
@@ -431,6 +460,7 @@ const parseMarkdown = (text) => {
       continue;
     }
 
+    // Feature: Blockquotes and Alerts (e.g., > text, > [!NOTE] ...)
     if (trimmedLine.startsWith(">")) {
       if (listStack.length) {
         processListItems(listStack[0].items);
@@ -447,12 +477,12 @@ const parseMarkdown = (text) => {
       }
       const content = trimmedLine.replace(/^>\s*/, "").trim(); // Remove "> " or ">"
 
-      // Skip completely empty lines (just ">") without adding to output
+      // Skip empty blockquote lines (e.g., ">") to avoid stray paragraphs
       if (!content && trimmedLine === ">") {
         continue;
       }
 
-      // Check if this is a new alert type
+      // Handle alert types
       if (content.match(/^\[!NOTE\]$/)) {
         if (currentBlockquote) {
           blocks.push({ type: "blockquote", text: currentBlockquote.text, alertType: currentAlertType });
@@ -495,26 +525,27 @@ const parseMarkdown = (text) => {
         continue;
       }
 
-      // If no new alert type and no current blockquote, start a plain one
+      // Start or continue a blockquote
       if (!currentBlockquote) {
         currentBlockquote = { text: "" };
         if (!currentAlertType) currentAlertType = null;
       }
 
-      // Add non-empty content to current blockquote
+      // Add non-empty content to blockquote
       if (content) {
         currentBlockquote.text += (currentBlockquote.text ? "\n" : "") + content;
       }
       continue;
     }
 
-    // Flush blockquote when we hit a non-blockquote line
+    // Flush blockquote before moving to other block types
     if (currentBlockquote) {
       blocks.push({ type: "blockquote", text: currentBlockquote.text, alertType: currentAlertType });
       currentBlockquote = null;
       currentAlertType = null;
     }
 
+    // Feature: Tables (e.g., | Header 1 | Header 2 | ...)
     if (trimmedLine.startsWith("|")) {
       if (listStack.length) {
         processListItems(listStack[0].items);
@@ -536,6 +567,7 @@ const parseMarkdown = (text) => {
       continue;
     }
 
+    // Feature: Horizontal Rule (e.g., ---)
     if (trimmedLine.match(/^(?:[-*_]){3,}$/)) {
       if (listStack.length) {
         processListItems(listStack[0].items);
@@ -554,6 +586,7 @@ const parseMarkdown = (text) => {
       continue;
     }
 
+    // Feature: Lists (Unordered: -/+/*, Ordered: 1., Task: - [ ]/- [x])
     if (trimmedLine.match(/^[-*+] /) || trimmedLine.match(/^\d+\.\s/)) {
       if (currentParagraphLines.length) {
         blocks.push({ type: "paragraph", text: currentParagraphLines.join("\n") });
@@ -595,6 +628,7 @@ const parseMarkdown = (text) => {
       continue;
     }
 
+    // Feature: Paragraphs with Line Breaks (e.g., text with trailing spaces)
     if (trimmedLine === "") {
       if (listStack.length) {
         processListItems(listStack[0].items);
@@ -626,6 +660,7 @@ const parseMarkdown = (text) => {
     }
   }
 
+  // Final cleanup for any remaining blocks
   if (listStack.length) {
     processListItems(listStack[0].items);
     blocks.push(listStack[0]);
@@ -640,7 +675,6 @@ const parseMarkdown = (text) => {
 
   return { blocks, footnotes };
 };
-
 
 // Recursive list renderer
 const renderList = (type, items, footnotes) => {
