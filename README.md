@@ -27,7 +27,7 @@ A lightweight, browser-based Markdown editor with real-time preview, built using
     - Tables (| Header | Header |\n|--------|--------|\n| Cell | Cell |).
     - Horizontal rules (---).
  - Line Breaks: Two spaces at the end of a line (text ) insert a <br> within paragraphs.
- - Paragraphs: Blank lines separate text into distinct <p> tags</p>.
+ - Paragraphs: Blank lines separate text into distinct `<p> tags</p>`.
     - Footnotes: Add references like [^1] with definitions [^1]: Description rendered at the bottom[^1].
  - Task Lists: Support - [ ] and - [x] for checklists.
  - Nested Lists: Support indentation for multi-level lists.
@@ -69,7 +69,7 @@ To create an anchor to a heading in github flavored markdown. Add - characters b
     - Benefit: Useful for academic or detailed writing where references are needed.
         
 6. Clean HTML Output
-    - Strength: Generates semantic HTML (e.g., <h1>, <strong>, <blockquote>) with consistent markdown-body classes.
+    - Strength: Generates semantic HTML (e.g., `<h1>, <strong>, <blockquote>`) with consistent markdown-body classes.
     - Benefit: Easy to style further and integrates well with existing CSS frameworks.
         
 7. Lightweight Framework
