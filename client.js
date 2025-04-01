@@ -1,6 +1,6 @@
 import van from "https://cdn.jsdelivr.net/gh/vanjs-org/van/public/van-1.5.3.min.js";
 
-const { div, p, h1, h2, h3, h4, h5, h6, pre, code, button, textarea, strong, em, a, ul, ol, li, blockquote, br, table, thead, tbody, tr, th, td, img, span, hr, del, sup, section } = van.tags;
+const { div, p, h1, h2, h3, h4, h5, h6, pre, code, button, textarea, strong, em, a, ul, ol, li, blockquote, br, table, thead, tbody, tr, th, td, img, span, hr, del, sup, section, input } = van.tags;
 
 // Editor State
 const editorState = van.state({
@@ -26,11 +26,9 @@ const loadHighlightJS = async () => {
 // Initialize highlight.js
 loadHighlightJS();
 
-// Inline parsing function
+// Inline parsing function (unchanged)
 const parseInline = (text, footnotes) => {
   let parts = [text];
-
-  // Footnotes: [^id]
   parts = parts.flatMap(part => {
     if (typeof part !== "string") return [part];
     const result = [];
@@ -39,24 +37,14 @@ const parseInline = (text, footnotes) => {
     let lastIndex = 0;
     let match;
     while ((match = footnoteRegex.exec(remaining)) !== null) {
-      if (match.index > lastIndex) {
-        result.push(remaining.slice(lastIndex, match.index));
-      }
+      if (match.index > lastIndex) result.push(remaining.slice(lastIndex, match.index));
       const id = match[1];
-      if (footnotes[id]) {
-        result.push(sup(a({ href: `#fn-${id}`, id: `fnref-${id}`, class: "footnote-ref" }, id)));
-      } else {
-        result.push(`[^${id}]`); // Unresolved footnote
-      }
+      result.push(footnotes[id] ? sup(a({ href: `#fn-${id}`, id: `fnref-${id}`, class: "footnote-ref" }, id)) : `[^${id}]`);
       lastIndex = footnoteRegex.lastIndex;
     }
-    if (lastIndex < remaining.length) {
-      result.push(remaining.slice(lastIndex));
-    }
+    if (lastIndex < remaining.length) result.push(remaining.slice(lastIndex));
     return result.length ? result : [part];
   });
-
-  // Inline HTML: <tag>...</tag> or <tag attr="value">...</tag>
   parts = parts.flatMap(part => {
     if (typeof part !== "string") return [part];
     const result = [];
@@ -65,22 +53,16 @@ const parseInline = (text, footnotes) => {
     let lastIndex = 0;
     let match;
     while ((match = htmlRegex.exec(remaining)) !== null) {
-      if (match.index > lastIndex) {
-        result.push(remaining.slice(lastIndex, match.index));
-      }
+      if (match.index > lastIndex) result.push(remaining.slice(lastIndex, match.index));
       const tag = match[1] || match[4];
       const attributes = match[2] || match[5] || "";
       const content = match[3] || "";
       result.push(span({ innerHTML: `<${tag}${attributes}>${content}</${tag}>` }));
       lastIndex = htmlRegex.lastIndex;
     }
-    if (lastIndex < remaining.length) {
-      result.push(remaining.slice(lastIndex));
-    }
+    if (lastIndex < remaining.length) result.push(remaining.slice(lastIndex));
     return result.length ? result : [part];
   });
-
-  // Inline code: `text`
   parts = parts.flatMap(part => {
     if (typeof part !== "string") return [part];
     const result = [];
@@ -89,19 +71,13 @@ const parseInline = (text, footnotes) => {
     let lastIndex = 0;
     let match;
     while ((match = codeRegex.exec(remaining)) !== null) {
-      if (match.index > lastIndex) {
-        result.push(remaining.slice(lastIndex, match.index));
-      }
+      if (match.index > lastIndex) result.push(remaining.slice(lastIndex, match.index));
       result.push(code(match[1]));
       lastIndex = codeRegex.lastIndex;
     }
-    if (lastIndex < remaining.length) {
-      result.push(remaining.slice(lastIndex));
-    }
+    if (lastIndex < remaining.length) result.push(remaining.slice(lastIndex));
     return result.length ? result : [part];
   });
-
-  // Strikethrough: ~~text~~
   parts = parts.flatMap(part => {
     if (typeof part !== "string") return [part];
     const result = [];
@@ -110,19 +86,13 @@ const parseInline = (text, footnotes) => {
     let lastIndex = 0;
     let match;
     while ((match = strikeRegex.exec(remaining)) !== null) {
-      if (match.index > lastIndex) {
-        result.push(remaining.slice(lastIndex, match.index));
-      }
+      if (match.index > lastIndex) result.push(remaining.slice(lastIndex, match.index));
       result.push(del(match[1]));
       lastIndex = strikeRegex.lastIndex;
     }
-    if (lastIndex < remaining.length) {
-      result.push(remaining.slice(lastIndex));
-    }
+    if (lastIndex < remaining.length) result.push(remaining.slice(lastIndex));
     return result.length ? result : [part];
   });
-
-  // Bold: **text**
   parts = parts.flatMap(part => {
     if (typeof part !== "string") return [part];
     const result = [];
@@ -131,19 +101,13 @@ const parseInline = (text, footnotes) => {
     let lastIndex = 0;
     let match;
     while ((match = boldRegex.exec(remaining)) !== null) {
-      if (match.index > lastIndex) {
-        result.push(remaining.slice(lastIndex, match.index));
-      }
+      if (match.index > lastIndex) result.push(remaining.slice(lastIndex, match.index));
       result.push(strong(match[1]));
       lastIndex = boldRegex.lastIndex;
     }
-    if (lastIndex < remaining.length) {
-      result.push(remaining.slice(lastIndex));
-    }
+    if (lastIndex < remaining.length) result.push(remaining.slice(lastIndex));
     return result.length ? result : [part];
   });
-
-  // Italic: *text* or _text_
   parts = parts.flatMap(part => {
     if (typeof part !== "string") return [part];
     const result = [];
@@ -152,19 +116,13 @@ const parseInline = (text, footnotes) => {
     let lastIndex = 0;
     let match;
     while ((match = italicRegex.exec(remaining)) !== null) {
-      if (match.index > lastIndex) {
-        result.push(remaining.slice(lastIndex, match.index));
-      }
+      if (match.index > lastIndex) result.push(remaining.slice(lastIndex, match.index));
       result.push(em(match[2]));
       lastIndex = italicRegex.lastIndex;
     }
-    if (lastIndex < remaining.length) {
-      result.push(remaining.slice(lastIndex));
-    }
+    if (lastIndex < remaining.length) result.push(remaining.slice(lastIndex));
     return result.length ? result : [part];
   });
-
-  // Images: ![alt](url)
   parts = parts.flatMap(part => {
     if (typeof part !== "string") return [part];
     const result = [];
@@ -173,19 +131,13 @@ const parseInline = (text, footnotes) => {
     let lastIndex = 0;
     let match;
     while ((match = imageRegex.exec(remaining)) !== null) {
-      if (match.index > lastIndex) {
-        result.push(remaining.slice(lastIndex, match.index));
-      }
+      if (match.index > lastIndex) result.push(remaining.slice(lastIndex, match.index));
       result.push(img({ src: match[2], alt: match[1], class: "markdown-body" }));
       lastIndex = imageRegex.lastIndex;
     }
-    if (lastIndex < remaining.length) {
-      result.push(remaining.slice(lastIndex));
-    }
+    if (lastIndex < remaining.length) result.push(remaining.slice(lastIndex));
     return result.length ? result : [part];
   });
-
-  // Links: [text](url)
   parts = parts.flatMap(part => {
     if (typeof part !== "string") return [part];
     const result = [];
@@ -194,45 +146,85 @@ const parseInline = (text, footnotes) => {
     let lastIndex = 0;
     let match;
     while ((match = linkRegex.exec(remaining)) !== null) {
-      if (match.index > lastIndex) {
-        result.push(remaining.slice(lastIndex, match.index));
-      }
+      if (match.index > lastIndex) result.push(remaining.slice(lastIndex, match.index));
       result.push(a({ href: match[2] }, match[1]));
       lastIndex = linkRegex.lastIndex;
     }
-    if (lastIndex < remaining.length) {
-      result.push(remaining.slice(lastIndex));
-    }
+    if (lastIndex < remaining.length) result.push(remaining.slice(lastIndex));
     return result.length ? result : [part];
   });
-
   return parts;
 };
 
+
+// Parse Markdown text into blocks and footnotes
 // Parse Markdown text into blocks and footnotes
 const parseMarkdown = (text) => {
   const blocks = [];
   const footnotes = {};
   const lines = text.split("\n");
+
   let currentCodeBlock = null;
-  let currentList = null;
   let currentBlockquote = null;
   let currentTable = null;
   let currentParagraphLines = [];
+  let listStack = []; // Stack to track nested list levels
+  let currentAlertType = null;
+  let pendingAnchor = null;
+
+  const getSpaceCount = (line) => line.match(/^\s*/)[0].length;
+
+  const processListItems = (items) => {
+    items.forEach(item => {
+      if (item.text.startsWith("[ ] ")) {
+        item.isTask = true;
+        item.checked = false;
+        item.text = item.text.replace("[ ] ", "").trim();
+        console.log(`Task: "${item.text}", checked: ${item.checked}`);
+      } else if (item.text.startsWith("[x] ") || item.text.startsWith("[X] ")) {
+        item.isTask = true;
+        item.checked = true;
+        item.text = item.text.replace(/^\[x\] /i, "").trim();
+        console.log(`Task: "${item.text}", checked: ${item.checked}`);
+      } else {
+        item.isTask = false;
+        item.checked = false;
+      }
+      if (item.children) processListItems(item.children.items);
+    });
+  };
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     const trimmedLine = line.trim();
+    const spaceCount = getSpaceCount(line);
 
-    // Footnote definition: [^id]: text
+    // Handle anchor tags
+    if (trimmedLine.match(/^<a id="[^"]+"><\/a>$/)) {
+      if (listStack.length) {
+        processListItems(listStack[0].items);
+        blocks.push(listStack[0]);
+        listStack = [];
+      }
+      if (currentParagraphLines.length) {
+        blocks.push({ type: "paragraph", text: currentParagraphLines.join("\n") });
+        currentParagraphLines = [];
+      }
+      pendingAnchor = trimmedLine.match(/^<a id="([^"]+)"><\/a>$/)[1];
+      continue;
+    }
+
+    // Handle footnotes
     if (trimmedLine.match(/^\[\^[^\]]+\]:/)) {
-      if (currentList) {
-        blocks.push(currentList);
-        currentList = null;
+      if (listStack.length) {
+        processListItems(listStack[0].items);
+        blocks.push(listStack[0]);
+        listStack = [];
       }
       if (currentBlockquote) {
-        blocks.push(currentBlockquote);
+        blocks.push({ type: "blockquote", text: currentBlockquote.text, alertType: currentAlertType });
         currentBlockquote = null;
+        currentAlertType = null;
       }
       if (currentTable) {
         blocks.push(currentTable);
@@ -248,20 +240,14 @@ const parseMarkdown = (text) => {
       continue;
     }
 
+    // Handle headers
     if (trimmedLine.startsWith("#")) {
       const level = trimmedLine.match(/^#+/)[0].length;
       if (level <= 6) {
-        if (currentList) {
-          blocks.push(currentList);
-          currentList = null;
-        }
-        if (currentBlockquote) {
-          blocks.push(currentBlockquote);
-          currentBlockquote = null;
-        }
-        if (currentTable) {
-          blocks.push(currentTable);
-          currentTable = null;
+        if (listStack.length) {
+          processListItems(listStack[0].items);
+          blocks.push(listStack[0]);
+          listStack = [];
         }
         if (currentParagraphLines.length) {
           blocks.push({ type: "paragraph", text: currentParagraphLines.join("\n") });
@@ -272,14 +258,17 @@ const parseMarkdown = (text) => {
       }
     }
 
+    // Handle code blocks
     if (trimmedLine.startsWith("```")) {
-      if (currentList) {
-        blocks.push(currentList);
-        currentList = null;
+      if (listStack.length) {
+        processListItems(listStack[0].items);
+        blocks.push(listStack[0]);
+        listStack = [];
       }
       if (currentBlockquote) {
-        blocks.push(currentBlockquote);
+        blocks.push({ type: "blockquote", text: currentBlockquote.text, alertType: currentAlertType });
         currentBlockquote = null;
+        currentAlertType = null;
       }
       if (currentTable) {
         blocks.push(currentTable);
@@ -304,10 +293,12 @@ const parseMarkdown = (text) => {
       continue;
     }
 
+    // Handle blockquotes and alerts
     if (trimmedLine.startsWith("> ")) {
-      if (currentList) {
-        blocks.push(currentList);
-        currentList = null;
+      if (listStack.length) {
+        processListItems(listStack[0].items);
+        blocks.push(listStack[0]);
+        listStack = [];
       }
       if (currentTable) {
         blocks.push(currentTable);
@@ -317,21 +308,66 @@ const parseMarkdown = (text) => {
         blocks.push({ type: "paragraph", text: currentParagraphLines.join("\n") });
         currentParagraphLines = [];
       }
-      if (!currentBlockquote) {
-        currentBlockquote = { type: "blockquote", text: "" };
+      const content = trimmedLine.replace("> ", "").trim();
+      if (content.match(/^\[!NOTE\]$/)) {
+        currentAlertType = "note";
+        if (currentBlockquote) {
+          blocks.push({ type: "blockquote", text: currentBlockquote.text, alertType: null });
+          currentBlockquote = null;
+        }
+        currentBlockquote = { text: "" };
+        continue;
+      } else if (content.match(/^\[!TIP\]$/)) {
+        currentAlertType = "tip";
+        if (currentBlockquote) {
+          blocks.push({ type: "blockquote", text: currentBlockquote.text, alertType: null });
+          currentBlockquote = null;
+        }
+        currentBlockquote = { text: "" };
+        continue;
+      } else if (content.match(/^\[!IMPORTANT\]$/)) {
+        currentAlertType = "important";
+        if (currentBlockquote) {
+          blocks.push({ type: "blockquote", text: currentBlockquote.text, alertType: null });
+          currentBlockquote = null;
+        }
+        currentBlockquote = { text: "" };
+        continue;
+      } else if (content.match(/^\[!WARNING\]$/)) {
+        currentAlertType = "warning";
+        if (currentBlockquote) {
+          blocks.push({ type: "blockquote", text: currentBlockquote.text, alertType: null });
+          currentBlockquote = null;
+        }
+        currentBlockquote = { text: "" };
+        continue;
+      } else if (content.match(/^\[!CAUTION\]$/)) {
+        currentAlertType = "caution";
+        if (currentBlockquote) {
+          blocks.push({ type: "blockquote", text: currentBlockquote.text, alertType: null });
+          currentBlockquote = null;
+        }
+        currentBlockquote = { text: "" };
+        continue;
       }
-      currentBlockquote.text += (currentBlockquote.text ? "\n" : "") + trimmedLine.replace("> ", "").trim();
+      if (!currentBlockquote) {
+        currentBlockquote = { text: "" };
+      }
+      currentBlockquote.text += (currentBlockquote.text ? "\n" : "") + content;
       continue;
     }
 
+    // Handle tables
     if (trimmedLine.startsWith("|")) {
-      if (currentList) {
-        blocks.push(currentList);
-        currentList = null;
+      if (listStack.length) {
+        processListItems(listStack[0].items);
+        blocks.push(listStack[0]);
+        listStack = [];
       }
       if (currentBlockquote) {
-        blocks.push(currentBlockquote);
+        blocks.push({ type: "blockquote", text: currentBlockquote.text, alertType: currentAlertType });
         currentBlockquote = null;
+        currentAlertType = null;
       }
       if (currentParagraphLines.length) {
         blocks.push({ type: "paragraph", text: currentParagraphLines.join("\n") });
@@ -343,19 +379,22 @@ const parseMarkdown = (text) => {
       const cells = trimmedLine.split("|").map(cell => cell.trim()).filter(cell => cell !== "");
       currentTable.rows.push(cells);
       if (i + 1 < lines.length && lines[i + 1].trim().match(/^\|?-+\|?-+\|?$/)) {
-        i++; // Skip the separator line
+        i++; // Skip separator line
       }
       continue;
     }
 
+    // Handle horizontal rules
     if (trimmedLine.match(/^(?:[-*_]){3,}$/)) {
-      if (currentList) {
-        blocks.push(currentList);
-        currentList = null;
+      if (listStack.length) {
+        processListItems(listStack[0].items);
+        blocks.push(listStack[0]);
+        listStack = [];
       }
       if (currentBlockquote) {
-        blocks.push(currentBlockquote);
+        blocks.push({ type: "blockquote", text: currentBlockquote.text, alertType: currentAlertType });
         currentBlockquote = null;
+        currentAlertType = null;
       }
       if (currentTable) {
         blocks.push(currentTable);
@@ -369,60 +408,54 @@ const parseMarkdown = (text) => {
       continue;
     }
 
-    if (trimmedLine.startsWith("- ")) {
-      if (currentBlockquote) {
-        blocks.push(currentBlockquote);
-        currentBlockquote = null;
-      }
-      if (currentTable) {
-        blocks.push(currentTable);
-        currentTable = null;
-      }
+    // Handle lists
+    if (trimmedLine.match(/^[-*+] /) || trimmedLine.match(/^\d+\.\s/)) {
       if (currentParagraphLines.length) {
         blocks.push({ type: "paragraph", text: currentParagraphLines.join("\n") });
         currentParagraphLines = [];
       }
-      if (!currentList || currentList.type !== "ul") {
-        if (currentList) blocks.push(currentList);
-        currentList = { type: "ul", items: [] };
+
+      const isUnordered = trimmedLine.match(/^[-*+] /);
+      const type = isUnordered ? "ul" : "ol";
+      const itemText = isUnordered
+        ? trimmedLine.replace(/^[-*+] /, "").trim()
+        : trimmedLine.replace(/^\d+\.\s/, "").trim();
+
+      if (!listStack.length) {
+        listStack.push({ type, items: [], spaceCount: 0 });
       }
-      currentList.items.push(trimmedLine.replace("- ", "").trim());
+
+      while (listStack.length > 1 && spaceCount <= listStack[listStack.length - 2].spaceCount) {
+        const completedList = listStack.pop();
+        processListItems(completedList.items);
+        const lastItem = listStack[listStack.length - 1].items[listStack[listStack.length - 1].items.length - 1];
+        if (lastItem) lastItem.children = completedList;
+      }
+
+      let targetList = listStack[listStack.length - 1];
+      if (spaceCount > targetList.spaceCount) {
+        const newList = { type, items: [], spaceCount };
+        const lastItem = targetList.items[targetList.items.length - 1];
+        if (lastItem) {
+          lastItem.children = newList;
+        } else {
+          targetList.items.push({ type, text: "", children: newList, spaceCount });
+        }
+        listStack.push(newList);
+        targetList = newList;
+      }
+
+      const itemToAdd = { type, text: itemText, children: null, spaceCount };
+      targetList.items.push(itemToAdd);
       continue;
     }
 
-    if (trimmedLine.match(/^\d+\.\s/)) {
-      if (currentBlockquote) {
-        blocks.push(currentBlockquote);
-        currentBlockquote = null;
-      }
-      if (currentTable) {
-        blocks.push(currentTable);
-        currentTable = null;
-      }
-      if (currentParagraphLines.length) {
-        blocks.push({ type: "paragraph", text: currentParagraphLines.join("\n") });
-        currentParagraphLines = [];
-      }
-      if (!currentList || currentList.type !== "ol") {
-        if (currentList) blocks.push(currentList);
-        currentList = { type: "ol", items: [] };
-      }
-      currentList.items.push(trimmedLine.replace(/^\d+\.\s/, "").trim());
-      continue;
-    }
-
+    // Handle empty lines
     if (trimmedLine === "") {
-      if (currentList) {
-        blocks.push(currentList);
-        currentList = null;
-      }
-      if (currentBlockquote) {
-        blocks.push(currentBlockquote);
-        currentBlockquote = null;
-      }
-      if (currentTable) {
-        blocks.push(currentTable);
-        currentTable = null;
+      if (listStack.length) {
+        processListItems(listStack[0].items);
+        blocks.push(listStack[0]);
+        listStack = [];
       }
       if (currentParagraphLines.length) {
         blocks.push({ type: "paragraph", text: currentParagraphLines.join("\n") });
@@ -431,36 +464,50 @@ const parseMarkdown = (text) => {
       continue;
     }
 
+    // Handle paragraphs
     if (line) {
-      if (currentList) {
-        blocks.push(currentList);
-        currentList = null;
-      }
-      if (currentBlockquote) {
-        blocks.push(currentBlockquote);
-        currentBlockquote = null;
-      }
-      if (currentTable) {
-        blocks.push(currentTable);
-        currentTable = null;
+      if (listStack.length) {
+        processListItems(listStack[0].items);
+        blocks.push(listStack[0]);
+        listStack = [];
       }
       currentParagraphLines.push(line);
     }
   }
 
-  if (currentCodeBlock) blocks.push(currentCodeBlock);
-  if (currentList) blocks.push(currentList);
-  if (currentBlockquote) blocks.push(currentBlockquote);
-  if (currentTable) blocks.push(currentTable);
-  if (currentParagraphLines.length) {
-    blocks.push({ type: "paragraph", text: currentParagraphLines.join("\n") });
+  // Flush remaining blocks
+  if (listStack.length) {
+    processListItems(listStack[0].items);
+    blocks.push(listStack[0]);
   }
+  if (currentParagraphLines.length) blocks.push({ type: "paragraph", text: currentParagraphLines.join("\n") });
 
   return { blocks, footnotes };
 };
 
+// Recursive list renderer
+const renderList = (type, items, footnotes) => {
+  const listTag = type === "ul" ? ul : ol;
+  return listTag({ class: "markdown-body" }, items.map(item => {
+    console.log(`Rendering item: "${item.text}", isTask: ${item.isTask}, checked: ${item.checked}`);
+    let content = parseInline(item.text, footnotes);
+    if (item.isTask) {
+      content = [input({ type: "checkbox", disabled: true, checked: item.checked }), ...content];
+    }
+    const liProps = { class: item.isTask ? "markdown-body task-item" : "markdown-body" };
+    //const liProps = { class: "markdown-body" };
+    if (item.anchorId) liProps.id = `user-content-${item.anchorId}`;
+    return li(
+      liProps,
+      item.anchorId ? [a({ id: item.anchorId }), ...content] : content,
+      item.children ? renderList(item.children.type, item.children.items, footnotes) : null
+    );
+  }));
+};
+
 // Preview Renderer
-const PreviewBlock = ({ type, text, language, items, rows, footnotes }) => {
+const PreviewBlock = ({ type, text, language, items, rows, footnotes, alertType, anchorId }) => {
+  console.log(`PreviewBlock: type=${type}, text=${text}, items=`, items);
   const hljs = hljsState.val;
 
   if (type === "paragraph") {
@@ -471,24 +518,22 @@ const PreviewBlock = ({ type, text, language, items, rows, footnotes }) => {
     });
     return p({ class: "markdown-body" }, lines);
   }
-  if (type === "h1") return h1({ class: "markdown-body" }, ...parseInline(text, footnotes));
-  if (type === "h2") return h2({ class: "markdown-body" }, ...parseInline(text, footnotes));
-  if (type === "h3") return h3({ class: "markdown-body" }, ...parseInline(text, footnotes));
-  if (type === "h4") return h4({ class: "markdown-body" }, ...parseInline(text, footnotes));
-  if (type === "h5") return h5({ class: "markdown-body" }, ...parseInline(text, footnotes));
-  if (type === "h6") return h6({ class: "markdown-body" }, ...parseInline(text, footnotes));
+  if (type === "h1") return h1(anchorId ? { id: `user-content-${anchorId}` } : {}, anchorId ? a({ id: anchorId }) : null, ...parseInline(text, footnotes));
+  if (type === "h2") return h2(anchorId ? { id: `user-content-${anchorId}` } : {}, anchorId ? a({ id: anchorId }) : null, ...parseInline(text, footnotes));
+  if (type === "h3") return h3(anchorId ? { id: `user-content-${anchorId}` } : {}, anchorId ? a({ id: anchorId }) : null, ...parseInline(text, footnotes));
+  if (type === "h4") return h4(anchorId ? { id: `user-content-${anchorId}` } : {}, anchorId ? a({ id: anchorId }) : null, ...parseInline(text, footnotes));
+  if (type === "h5") return h5(anchorId ? { id: `user-content-${anchorId}` } : {}, anchorId ? a({ id: anchorId }) : null, ...parseInline(text, footnotes));
+  if (type === "h6") return h6(anchorId ? { id: `user-content-${anchorId}` } : {}, anchorId ? a({ id: anchorId }) : null, ...parseInline(text, footnotes));
   if (type === "code") {
     if (hljs) {
       const highlighted = hljs.highlight(text, { language: language === "text" ? "plaintext" : language }).value;
-      return pre({ class: "markdown-body code-block" },
-        code({ class: `language-${language}`, innerHTML: highlighted })
-      );
+      return pre({ class: "markdown-body code-block" }, code({ class: `language-${language}`, innerHTML: highlighted }));
     }
     return pre({ class: "markdown-body code-block" }, code({ class: `language-${language}` }, text));
   }
   if (type === "blockquote") {
     const lines = text.split("\n").map(line => p(...parseInline(line, footnotes)));
-    return blockquote({ class: "markdown-body blockquote" }, lines);
+    return blockquote({ class: `markdown-body blockquote${alertType ? ` alert-${alertType}` : ""}` }, lines);
   }
   if (type === "table") {
     const [header, ...body] = rows;
@@ -498,11 +543,12 @@ const PreviewBlock = ({ type, text, language, items, rows, footnotes }) => {
     );
   }
   if (type === "hr") return hr({ class: "markdown-body" });
-  if (type === "ul") return ul({ class: "markdown-body" }, items.map(item => li({ class: "markdown-body" }, ...parseInline(item, footnotes))));
-  if (type === "ol") return ol({ class: "markdown-body" }, items.map(item => li({ class: "markdown-body" }, ...parseInline(item, footnotes))));
+  if (type === "ul" || type === "ol") return renderList(type, items, footnotes);
 };
 
-// Editor Component with Preview
+
+
+// Editor Component with Preview (unchanged)
 const Editor = () => {
   const editorTextarea = textarea({
     value: editorState.val.text,
@@ -539,3 +585,33 @@ const Editor = () => {
 
 // Mount to DOM
 van.add(document.getElementById("app"), Editor());
+
+// Add CSS for alerts
+const style = document.createElement("style");
+style.textContent = `
+  .markdown-body.blockquote.alert-note {
+    border-left: 4px solid #0969da;
+    background-color: #f6f8fa;
+  }
+  .markdown-body.blockquote.alert-tip {
+    border-left: 4px solid #1a7f37;
+    background-color: #f6faf6;
+  }
+  .markdown-body.blockquote.alert-important {
+    border-left: 4px solid #8250df;
+    background-color: #faf6fe;
+  }
+  .markdown-body.blockquote.alert-warning {
+    border-left: 4px solid #bf8700;
+    background-color: #fff8f3;
+  }
+  .markdown-body.blockquote.alert-caution {
+    border-left: 4px solid #cf222e;
+    background-color: #fff5f5;
+  }
+  .markdown-body.blockquote {
+    padding: 0.5em 1em;
+    margin: 1em 0;
+  }
+`;
+document.head.appendChild(style);
