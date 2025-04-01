@@ -10,6 +10,8 @@ A lightweight, browser-based Markdown editor with real-time preview, built using
 # Information:
   Using the Grok Beta 3 AI Model to help build this readme and script to help build markdown. As well manual edit and test for trouble shooting.
 
+  Reason for doing this to develop a test build for posting forum or blog to keep it simple.
+
 ## Features
  - Live Preview: Instantly see your Markdown rendered as you type.
  - Syntax Highlighting: Code blocks with language-specific highlighting via Highlight.js (e.g., JavaScript, Python).
