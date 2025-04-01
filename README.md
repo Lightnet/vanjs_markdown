@@ -22,6 +22,11 @@ A lightweight, browser-based Markdown editor with real-time preview, built using
  - Line Breaks: Two spaces at the end of a line (text ) insert a <br> within paragraphs.
  - Paragraphs: Blank lines separate text into distinct <p> tags</p>.
     - Footnotes: Add references like [^1] with definitions [^1]: Description rendered at the bottom[^1].
+ - Task Lists: Support - [ ] and - [x] for checklists.
+ - Nested Lists: Support indentation for multi-level lists.
+
+# Preview
+ * https://lightnet.github.io/vanjs_markdown
 
 # Installation
 
@@ -87,14 +92,12 @@ html
 # Planned Features
 
 A list of enhancements to be added later:
-  - Task Lists: Support - [ ] and - [x] for checklists.  
   - Emoji: Render :smile: as ![😊]using an emoji library.
   - Math Support: Add LaTeX rendering (e.g., $x^2$) with KaTeX or MathJax.  
   - Autolinks: Convert bare URLs (e.g., https://example.com) to clickable links.  
   - Custom Styles: Allow users to toggle themes or upload CSS.
   - Export Options: Save as HTML, Markdown, or PDF.
   - Inline Code Blocks: Enhance styling for inline <code> tags</code>.
-  - Nested Lists: Support indentation for multi-level lists.
   - Image Upload: Drag-and-drop or paste images into the editor.
   
 [^1]: This README uses the footnote feature to demonstrate its functionality!
